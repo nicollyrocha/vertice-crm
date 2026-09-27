@@ -52,13 +52,12 @@ export function CommandMenu() {
   }, [])
 
   useEffect(() => {
-    if (query.trim().length < 2) {
-      setHits([])
-      return
-    }
+    if (query.trim().length < 2) return
     const t = setTimeout(() => start(async () => setHits(await searchAction(query))), 200)
     return () => clearTimeout(t)
   }, [query])
+
+  const searching = query.trim().length >= 2
 
   function go(href: string) {
     setOpen(false)
@@ -80,7 +79,7 @@ export function CommandMenu() {
               "Nada encontrado."
             )}
           </CommandEmpty>
-          {hits.length > 0 && (
+          {searching && hits.length > 0 && (
             <CommandGroup heading="Resultados">
               {hits.map((h) => {
                 const Icon = hitIcon[h.type]

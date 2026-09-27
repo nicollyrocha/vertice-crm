@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { parseDateOnly } from "@/lib/dates"
 import { parseBRLToCents } from "@/lib/format"
 import { email, optionalId, optionalText } from "./shared"
 
@@ -37,7 +38,7 @@ const optionalDate = z
   .nullable()
   .transform((v, ctx) => {
     if (!v) return null
-    const d = new Date(v)
+    const d = parseDateOnly(v) ?? new Date(v)
     if (Number.isNaN(d.getTime())) {
       ctx.addIssue({ code: "custom", message: "Data inválida" })
       return z.NEVER
@@ -61,8 +62,15 @@ export const dealSchema = z
       ctx.addIssue({ code: "custom", path: ["value"], message: "Valor inválido" })
       return z.NEVER
     }
-    const { value: _value, ...rest } = d
-    return { ...rest, valueCents }
+    return {
+      title: d.title,
+      stageId: d.stageId,
+      contactId: d.contactId,
+      companyId: d.companyId,
+      ownerId: d.ownerId,
+      expectedCloseDate: d.expectedCloseDate,
+      valueCents,
+    }
   })
 
 export const activitySchema = z.object({

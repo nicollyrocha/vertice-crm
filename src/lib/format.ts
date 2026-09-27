@@ -1,3 +1,5 @@
+import { APP_TZ } from "./dates"
+
 const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
 const brlCompact = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -35,12 +37,13 @@ export function initials(name: string | null | undefined) {
   return (first + last).toUpperCase()
 }
 
-const dateFmt = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
+const dateFmt = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric", timeZone: APP_TZ })
 const dateTimeFmt = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "short",
   hour: "2-digit",
   minute: "2-digit",
+  timeZone: APP_TZ,
 })
 const relFmt = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" })
 
@@ -67,4 +70,10 @@ export function formatRelative(d: Date | string, now = new Date()) {
 
 export function formatPercent(n: number) {
   return `${Math.round(n)}%`
+}
+
+const timeFmt = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: APP_TZ })
+
+export function formatTime(d: Date | string | null | undefined) {
+  return d ? timeFmt.format(new Date(d)) : ""
 }

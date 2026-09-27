@@ -8,7 +8,7 @@ import { orgCookie } from "@/config/site"
 import { appUrl } from "@/env"
 import { db } from "@/db"
 import { invitations, memberships, organizations, type Role } from "@/db/schema"
-import { fail, fromZod, ok, type FormState } from "@/lib/action"
+import { fail, fromZod, ok, type ActionResult, type FormState } from "@/lib/action"
 import { addMinutes, createToken, hashToken } from "@/lib/tokens"
 import { inviteSchema, orgSchema } from "@/lib/validations/crm"
 import { assertCan, getMembership, getUserOrgs, requireOrgContext, requireUser } from "@/server/context"
@@ -66,7 +66,7 @@ export async function uploadOrgLogoAction(formData: FormData): Promise<FormState
   return ok(undefined, "Logo atualizado.")
 }
 
-export async function deleteOrgAction(): Promise<FormState> {
+export async function deleteOrgAction(): Promise<ActionResult> {
   const ctx = await requireOrgContext()
   assertCan(ctx, "org:delete")
   await db.delete(organizations).where(eq(organizations.id, ctx.org.id))
@@ -112,7 +112,7 @@ export async function inviteMemberAction(_prev: FormState, formData: FormData): 
   return ok(undefined, `Convite enviado para ${email}.`)
 }
 
-export async function revokeInviteAction(inviteId: string): Promise<FormState> {
+export async function revokeInviteAction(inviteId: string): Promise<ActionResult> {
   const ctx = await requireOrgContext()
   assertCan(ctx, "members:invite")
   await db.delete(invitations).where(and(eq(invitations.id, inviteId), eq(invitations.orgId, ctx.org.id)))
@@ -120,7 +120,7 @@ export async function revokeInviteAction(inviteId: string): Promise<FormState> {
   return ok(undefined, "Convite cancelado.")
 }
 
-export async function changeRoleAction(userId: string, next: Role): Promise<FormState> {
+export async function changeRoleAction(userId: string, next: Role): Promise<ActionResult> {
   const ctx = await requireOrgContext()
   if (userId === ctx.user.id) return fail("Você não pode alterar seu próprio papel.")
   const target = await getMembership(userId, ctx.org.id)
@@ -149,7 +149,7 @@ export async function changeRoleAction(userId: string, next: Role): Promise<Form
   return ok(undefined, "Papel atualizado.")
 }
 
-export async function removeMemberAction(userId: string): Promise<FormState> {
+export async function removeMemberAction(userId: string): Promise<ActionResult> {
   const ctx = await requireOrgContext()
   if (userId === ctx.user.id) return fail("Use a opção 'Sair da organização'.")
   const target = await getMembership(userId, ctx.org.id)
@@ -160,7 +160,7 @@ export async function removeMemberAction(userId: string): Promise<FormState> {
   return ok(undefined, "Membro removido.")
 }
 
-export async function leaveOrgAction(): Promise<FormState> {
+export async function leaveOrgAction(): Promise<ActionResult> {
   const ctx = await requireOrgContext()
   if (ctx.role === "owner") return fail("Transfira a propriedade antes de sair da organização.")
   await db.delete(memberships).where(and(eq(memberships.userId, ctx.user.id), eq(memberships.orgId, ctx.org.id)))
@@ -169,7 +169,7 @@ export async function leaveOrgAction(): Promise<FormState> {
   redirect("/app")
 }
 
-export async function acceptInviteAction(token: string): Promise<FormState> {
+export async function acceptInviteAction(token: string): Promise<ActionResult> {
   const user = await requireUser()
   const invite = await db.query.invitations.findFirst({ where: eq(invitations.tokenHash, hashToken(token)) })
   if (!invite || invite.acceptedAt || invite.expiresAt < new Date()) return fail("Convite inválido ou expirado.")

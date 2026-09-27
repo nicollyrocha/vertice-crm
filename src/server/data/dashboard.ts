@@ -2,14 +2,14 @@ import "server-only"
 import { and, asc, desc, eq, gte, sql } from "drizzle-orm"
 import { db } from "@/db"
 import { deals, stages } from "@/db/schema"
+import { APP_TZ, startOfMonthInTz } from "@/lib/dates"
 import type { OrgContext } from "@/server/context"
 import { countOverdue } from "./activities"
 import { getPipeline } from "./pipeline"
 
-function startOfMonth(offset = 0) {
-  const d = new Date()
-  return new Date(d.getFullYear(), d.getMonth() + offset, 1)
-}
+const startOfMonth = (offset = 0) => startOfMonthInTz(offset)
+const monthKey = (d: Date) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: APP_TZ, year: "numeric", month: "2-digit" }).format(d)
 
 export async function getDashboard(ctx: OrgContext) {
   const pipeline = await getPipeline(ctx.org.id)
@@ -48,7 +48,7 @@ export async function getDashboard(ctx: OrgContext) {
       .where(eq(deals.orgId, orgId)),
     db
       .select({
-        month: sql<string>`to_char(date_trunc('month', ${deals.closedAt}), 'YYYY-MM')`,
+        month: sql<string>`to_char(date_trunc('month', (${deals.closedAt} at time zone 'UTC') at time zone ${APP_TZ}), 'YYYY-MM')`,
         wonCents: sql<number>`coalesce(sum(${deals.valueCents}), 0)::bigint`.mapWith(Number),
       })
       .from(deals)
@@ -63,8 +63,8 @@ export async function getDashboard(ctx: OrgContext) {
   const monthlyMap = new Map(monthly.map((m) => [m.month, m.wonCents]))
   const revenueSeries = Array.from({ length: 6 }, (_, i) => {
     const d = startOfMonth(i - 5)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
-    const label = d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")
+    const key = monthKey(d)
+    const label = d.toLocaleDateString("pt-BR", { month: "short", timeZone: APP_TZ }).replace(".", "")
     return { key, label, wonCents: monthlyMap.get(key) ?? 0 }
   })
 

@@ -2,26 +2,7 @@ import "server-only"
 import { eq } from "drizzle-orm"
 import { db } from "@/db"
 import { memberships, organizations, pipelines, stages } from "@/db/schema"
-
-export const defaultStages = [
-  { name: "Lead", probability: 10, color: "slate" },
-  { name: "Qualificado", probability: 25, color: "sky" },
-  { name: "Proposta", probability: 50, color: "violet" },
-  { name: "Negociação", probability: 75, color: "amber" },
-  { name: "Ganho", probability: 100, color: "emerald", isWon: true },
-] as const
-
-export function slugify(name: string) {
-  return (
-    name
-      .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
-      .slice(0, 40) || "org"
-  )
-}
+import { defaultStages, slugify } from "@/lib/org"
 
 async function uniqueSlug(name: string) {
   const base = slugify(name)
@@ -48,7 +29,7 @@ export async function createOrganization(name: string, ownerId: string) {
         name: s.name,
         probability: s.probability,
         color: s.color,
-        isWon: "isWon" in s ? s.isWon : false,
+        isWon: s.isWon,
         position,
       })),
     ),

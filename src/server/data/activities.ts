@@ -3,6 +3,7 @@ import { alias } from "drizzle-orm/pg-core"
 import { and, asc, desc, eq, gte, isNotNull, isNull, lt, sql, type SQL } from "drizzle-orm"
 import { db } from "@/db"
 import { activities, companies, contacts, deals, users } from "@/db/schema"
+import { startOfDayInTz } from "@/lib/dates"
 import type { OrgContext } from "@/server/context"
 
 const assignee = alias(users, "assignee")
@@ -37,11 +38,10 @@ function base() {
 
 export type ActivityRow = Awaited<ReturnType<typeof listActivitiesFor>>[number]
 
+/** "Hoje" no fuso da aplicação (não no fuso do servidor). */
 function dayBounds(now = new Date()) {
-  const start = new Date(now)
-  start.setHours(0, 0, 0, 0)
-  const end = new Date(start)
-  end.setDate(end.getDate() + 1)
+  const start = startOfDayInTz(now)
+  const end = startOfDayInTz(new Date(start.getTime() + 36 * 3600 * 1000))
   return { start, end }
 }
 
