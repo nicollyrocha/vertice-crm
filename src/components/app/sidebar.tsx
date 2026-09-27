@@ -105,7 +105,7 @@ export function SidebarContent({ orgs, activeOrgId, badges, defaultCollapsed = f
         {!collapsed && (
           <>
             Buscar…
-            <kbd className="ml-auto rounded border bg-muted px-1.5 font-mono text-[10px]">Ctrl K</kbd>
+            <kbd className="ml-auto hidden rounded border bg-muted px-1.5 font-mono text-[10px] md:inline">Ctrl K</kbd>
           </>
         )}
       </button>

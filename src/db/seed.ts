@@ -130,11 +130,11 @@ async function main() {
   const won = stages.find((st) => st.isWon)!
   const positions = new Map<string, number>()
   const dealRows = Array.from({ length: 40 }, (_, i) => {
-    const contact = pick(contacts, i * 3)
+    const contact = pick(contacts, i * 7)
     const company = companies.find((c) => c.id === contact.companyId)!
     // distribui: maioria aberta, alguns ganhos em meses anteriores, alguns perdidos
     const kind = i % 10 === 0 ? "lost" : i % 4 === 0 ? "won" : "open"
-    const stage = kind === "won" ? won : pick(stages.slice(0, -1), i)
+    const stage = kind === "won" ? won : pick(stages.slice(0, -1), Math.floor(i / 2))
     const pos = positions.get(stage.id) ?? 0
     positions.set(stage.id, pos + 1)
     const closedAt = kind === "open" ? null : daysFromNow(-((i * 11) % 170), 15)

@@ -10,6 +10,7 @@ import { formatBRL } from "@/lib/format"
 import { dealSchema } from "@/lib/validations/crm"
 import { requireOrgContext } from "@/server/context"
 import { assertRefs, getOrgStage } from "@/server/data/guards"
+import { getPipeline } from "@/server/data/pipeline"
 import { logActivity } from "@/server/data/timeline"
 import { guarded } from "./safe"
 
@@ -121,9 +122,22 @@ export async function moveDealAction(dealId: string, stageId: string, position: 
 
 export async function setDealStatusAction(dealId: string, status: "open" | "won" | "lost"): Promise<ActionResult> {
   const ctx = await requireOrgContext()
+  const [current] = await db
+    .select({ stageId: deals.stageId })
+    .from(deals)
+    .where(and(eq(deals.id, dealId), eq(deals.orgId, ctx.org.id)))
+  if (!current) return fail("Negócio não encontrado.")
+
+  // Mantém o kanban coerente: ganho vai para o estágio de ganho; reaberto sai dele.
+  const { stages } = await getPipeline(ctx.org.id)
+  const wonStage = stages.find((s) => s.isWon)
+  let stageId: string | undefined
+  if (status === "won") stageId = wonStage?.id
+  else if (status === "open" && current.stageId === wonStage?.id) stageId = stages.filter((s) => !s.isWon).at(-1)?.id
+
   const [row] = await db
     .update(deals)
-    .set({ status, closedAt: status === "open" ? null : new Date() })
+    .set({ status, closedAt: status === "open" ? null : new Date(), ...(stageId ? { stageId } : {}) })
     .where(and(eq(deals.id, dealId), eq(deals.orgId, ctx.org.id)))
     .returning({ id: deals.id })
   if (!row) return fail("Negócio não encontrado.")

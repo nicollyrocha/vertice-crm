@@ -89,7 +89,7 @@ export function EmailSection({ user }: { user: User }) {
         <div className="grid max-w-sm gap-4">
           <Field label="Novo email" name="email" type="email" required autoComplete="email" error={fieldError(state, "email")} />
           {user.hasPassword && (
-            <Field label="Confirme com sua senha" name="password" error={fieldError(state, "password")}>
+            <Field label="Confirme com sua senha" name="password" id="f-password-email" error={fieldError(state, "password")}>
               <PasswordInput id="f-password-email" name="password" autoComplete="current-password" required />
             </Field>
           )}
@@ -124,7 +124,7 @@ export function PasswordSection({ user }: { user: User }) {
               <PasswordInput id="f-current" name="current" autoComplete="current-password" required />
             </Field>
           )}
-          <Field label="Nova senha" name="password" error={fieldError(state, "password")}>
+          <Field label="Nova senha" name="password" id="f-new" error={fieldError(state, "password")}>
             <PasswordInput id="f-new" name="password" autoComplete="new-password" minLength={8} required />
           </Field>
           {user.hasPassword && (

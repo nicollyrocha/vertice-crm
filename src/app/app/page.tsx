@@ -32,6 +32,16 @@ function CardHead({ title, action }: { title: string; action?: React.ReactNode }
   )
 }
 
+function ChartEmpty({ text, action }: { text: string; action?: React.ReactNode }) {
+  return (
+    <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-muted/20 px-6 text-center text-sm text-muted-foreground">
+      <TrendingUp className="size-5" />
+      {text}
+      {action}
+    </div>
+  )
+}
+
 function MiniStat({
   icon: Icon,
   label,
@@ -126,7 +136,11 @@ export default async function DashboardPage() {
             </div>
             <div className="min-w-0">
               <div className="mb-2 text-xs font-medium text-muted-foreground">Receita ganha · últimos 6 meses</div>
-              <RevenueChart data={dash.revenueSeries} />
+              {dash.revenueSeries.some((m) => m.wonCents > 0) ? (
+                <RevenueChart data={dash.revenueSeries} />
+              ) : (
+                <ChartEmpty text="Marque negócios como ganhos para ver sua receita mês a mês." />
+              )}
             </div>
           </div>
         </Card>
@@ -174,7 +188,18 @@ export default async function DashboardPage() {
             }
           />
           <div className="p-5 pt-3">
-            <StageBarChart data={dash.byStage.filter((s) => s.probability < 100)} />
+            {dash.byStage.some((st) => st.valueCents > 0) ? (
+              <StageBarChart data={dash.byStage.filter((st) => st.probability < 100)} />
+            ) : (
+              <ChartEmpty
+                text="Nenhum negócio em aberto ainda."
+                action={
+                  <Button asChild size="sm" variant="outline">
+                    <Link href="/app/deals?new=1">Criar primeiro negócio</Link>
+                  </Button>
+                }
+              />
+            )}
           </div>
         </Card>
 
