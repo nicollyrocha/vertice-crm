@@ -25,6 +25,11 @@ const items = [
     name: "João Pereira",
     role: "SDR Lead, Solaris",
   },
+  {
+    quote: "Onboarding do time em uma tarde. Ninguém pediu treinamento — a interface explica sozinha.",
+    name: "Beatriz Rocha",
+    role: "COO, Atlas Consultoria",
+  },
 ]
 
 export function Testimonials() {
@@ -36,7 +41,7 @@ export function Testimonials() {
           Times que vendem mais com o Vértice
         </h2>
       </div>
-      <div className="mt-14 grid gap-4 md:grid-cols-3 md:grid-rows-2">
+      <div className="mt-14 grid gap-4 md:grid-cols-2 md:grid-rows-2 lg:grid-cols-3">
         {items.map((t) => (
           <figure
             key={t.name}

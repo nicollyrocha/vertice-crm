@@ -4,6 +4,7 @@ import GitHub from "next-auth/providers/github"
 import Google from "next-auth/providers/google"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { eq } from "drizzle-orm"
+import { authConfig } from "@/auth.config"
 import { db, getDb } from "@/db"
 import { accounts, sessions, users, verificationTokens } from "@/db/schema"
 import { verifyPassword } from "@/lib/password"
@@ -52,11 +53,10 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth(() 
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
   }) : undefined,
-  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
-  trustHost: true,
-  pages: { signIn: "/login", error: "/login" },
+  ...authConfig,
   providers,
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user, trigger }) {
       if (user?.id) token.uid = user.id
       if (trigger === "update" && token.uid) {
@@ -68,10 +68,6 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth(() 
         }
       }
       return token
-    },
-    session({ session, token }) {
-      if (token.uid) session.user.id = token.uid as string
-      return session
     },
   },
   events: {

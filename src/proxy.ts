@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/auth"
+import NextAuth from "next-auth"
+import { authConfig } from "@/auth.config"
+
+// Instância leve (sem banco): só lê o JWT da sessão.
+const { auth } = NextAuth(authConfig)
 
 const authPages = ["/login", "/signup"]
 
 // Checagem otimista: a autorização real acontece em src/server/context.ts.
-export const proxy = auth((req) => {
+export default auth((req) => {
   const { pathname, search } = req.nextUrl
   const isLoggedIn = Boolean(req.auth?.user)
   const isProtected = pathname.startsWith("/app") || pathname.startsWith("/onboarding")
