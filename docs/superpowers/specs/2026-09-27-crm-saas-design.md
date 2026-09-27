@@ -114,3 +114,13 @@ Nome da marca "Vértice" é placeholder, centralizado em `src/config/site.ts`.
 ## Fora de escopo (v1)
 
 Billing/Stripe, i18n, tickets/inbox, integrações de email/calendário, importação CSV, automações, API pública.
+
+## Brief de direção visual (design-direction)
+
+Referência observada: attio.com (2026-09). Pegamos do Attio o CTA primário quase preto (não colorido), a headline grande com tracking apertado, a janela do produto com "traffic lights" logo abaixo do hero e a pílula ⌘K na sidebar.
+
+- Neutros zinc; `--primary` quase preto (claro) / quase branco (escuro). O violeta (`--brand`) fica restrito a logo, anéis de foco, gráficos, destaques e badges "novo".
+- Status sempre como pílula com ponto colorido. Estágios têm paleta própria (slate, sky, violet, amber, emerald).
+- Dashboard: o KPI "Pipeline aberto" é o elemento herói (maior, com gráfico de área), e os outros KPIs ficam secundários. Não usar grade de cards idênticos.
+- Tabelas densas (13px) com hover de linha. Sidebar com item ativo em pílula `bg-sidebar-accent` e sombra interna sutil.
+- Landing: grid pontilhado com brilho radial violeta, mock do produto construído em JSX, bento assimétrico com mini-UIs e uma faixa escura (métricas e depoimento) para quebrar o ritmo.

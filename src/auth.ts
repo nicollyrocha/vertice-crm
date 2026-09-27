@@ -4,7 +4,7 @@ import GitHub from "next-auth/providers/github"
 import Google from "next-auth/providers/google"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { eq } from "drizzle-orm"
-import { db } from "@/db"
+import { db, getDb } from "@/db"
 import { accounts, sessions, users, verificationTokens } from "@/db/schema"
 import { verifyPassword } from "@/lib/password"
 import { signInSchema } from "@/lib/validations/auth"
@@ -44,13 +44,14 @@ export const oauthProviders = {
   github: Boolean(process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET),
 }
 
-export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
-  adapter: DrizzleAdapter(db, {
+// Config lazy: o adapter recebe a instância real do Drizzle só quando há uma requisição.
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth(() => ({
+  adapter: process.env.DATABASE_URL ? DrizzleAdapter(getDb(), {
     usersTable: users,
     accountsTable: accounts,
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
-  }),
+  }) : undefined,
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
   trustHost: true,
   pages: { signIn: "/login", error: "/login" },
@@ -79,4 +80,4 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
       if (user.id) await db.update(users).set({ emailVerified: new Date() }).where(eq(users.id, user.id))
     },
   },
-})
+}))

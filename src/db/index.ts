@@ -6,7 +6,7 @@ type DB = NeonHttpDatabase<typeof schema>
 
 let instance: DB | undefined
 
-function getDb(): DB {
+export function getDb(): DB {
   if (!instance) {
     const url = process.env.DATABASE_URL
     if (!url) throw new Error("DATABASE_URL não definida. Veja .env.example.")
