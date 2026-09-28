@@ -2,6 +2,8 @@
 
 CRM SaaS multi-tenant para times de vendas B2B, feito com Next.js 16, Neon Postgres e Auth.js e pronto para deploy na Vercel.
 
+**Produção:** https://vertice-crm-ten.vercel.app · deploy automático a cada push na `main`.
+
 ## O que já vem pronto
 
 - **Landing page** com hero, recursos, como funciona, depoimentos, preços, FAQ e CTA. Também inclui as páginas `/pricing`, `/terms` e `/privacy`.
