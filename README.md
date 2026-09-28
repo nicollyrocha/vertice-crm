@@ -51,7 +51,7 @@ Em desenvolvimento, sem `RESEND_API_KEY`, os links de email (verificação, rese
    - `NEXT_PUBLIC_APP_URL`, por exemplo `https://crm.suaempresa.com.br`.
    - `RESEND_API_KEY` e `EMAIL_FROM`, com o domínio verificado no Resend.
    - Opcionais: `AUTH_GOOGLE_ID`/`AUTH_GOOGLE_SECRET` e `AUTH_GITHUB_ID`/`AUTH_GITHUB_SECRET`.
-5. Rode as migrations contra o banco de produção com `DATABASE_URL=... npm run db:migrate`, ou adicione `npm run db:migrate &&` ao build command.
+5. As migrations rodam automaticamente em cada deploy de **produção** (`vercel.json`). Deploys de preview não tocam no banco.
 6. Faça o deploy.
 
 **Callbacks OAuth:** `https://SEU_DOMINIO/api/auth/callback/google` e `.../github`.
